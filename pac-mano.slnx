@@ -1,0 +1,7 @@
+<Solution>
+  <Configurations>
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Project Path="pac-mano/pac-mano.vcxproj" Id="36dff853-bf9b-4a31-a46f-85d539fb35c4" />
+</Solution>
