@@ -18,5 +18,8 @@
     <ClCompile Include="src\main.cpp">
       <Filter>Arquivos de Origem</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\..\Documents\01_hello_SDL\01_hello_SDL\01_hello_SDL.cpp">
+      <Filter>Arquivos de Recurso</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
