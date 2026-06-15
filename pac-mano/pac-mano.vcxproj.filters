@@ -18,8 +18,19 @@
     <ClCompile Include="src\main.cpp">
       <Filter>Arquivos de Origem</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\Documents\01_hello_SDL\01_hello_SDL\01_hello_SDL.cpp">
-      <Filter>Arquivos de Recurso</Filter>
+    <ClCompile Include="src\LTexture.cpp">
+      <Filter>Arquivos de Origem</Filter>
     </ClCompile>
+    <ClCompile Include="src\PacMan.cpp">
+      <Filter>Arquivos de Origem</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\LTexture.h">
+      <Filter>Arquivos de Cabeçalho</Filter>
+    </ClInclude>
+    <ClInclude Include="src\PacMan.h">
+      <Filter>Arquivos de Cabeçalho</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
