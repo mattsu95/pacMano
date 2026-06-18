@@ -1,22 +1,15 @@
 #pragma once
-#include "LTexture.h"
+#include "Entity.h"
 
-class PacMan {
+class PacMan : public Entity {
 public:
-	static const int DOT_WIDTH = 20;
-	static const int DOT_HEIGHT = 20;
-	static const int DOT_VEL = 2;
+	using Entity::Entity;
 
-	PacMan(LTexture* texture);
+	static const int PACMAN_WIDTH = 20;
+	static const int PACMAN_HEIGHT = 20;
+	static const int PACMAN_VEL = 2;
 
 	void handleEvent(SDL_Event& e);
 
-	void move(const int SCREEN_WIDTH, const int SCREEN_HEIGHT);
-
-	void render(SDL_Renderer* gRenderer);
-
-private:
-	int mPosX, mPosY;
-	int mVelX, mVelY;
-	LTexture* mTexture;
+	void move(const int SCREEN_WIDTH, const int SCREEN_HEIGHT) override;
 };

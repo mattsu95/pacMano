@@ -2,9 +2,53 @@
 #include "LTexture.h"
 #include "PacMan.h"
 
-//Screen dimension constants
-const int SCREEN_WIDTH = 640;
-const int SCREEN_HEIGHT = 480;
+// dimensão dos tiles
+const int TILE_SIZE = 20;
+const int MAP_WIDTH = 28;
+const int MAP_HEIGHT = 36;
+
+// dimensão da tela
+const int SCREEN_WIDTH = MAP_WIDTH * TILE_SIZE;
+const int SCREEN_HEIGHT = MAP_HEIGHT * TILE_SIZE;
+
+const int mapa[MAP_HEIGHT][MAP_WIDTH] = {
+	{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, // Linha 0 (Placar)
+	{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, // Linha 1 (Placar)
+	{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, // Linha 2 (Placar)
+	{1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}, // Início do Labirinto
+	{1,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,1},
+	{1,0,1,1,1,1,0,1,1,1,1,1,0,1,1,0,1,1,1,1,1,0,1,1,1,1,0,1},
+	{1,0,1,1,1,1,0,1,1,1,1,1,0,1,1,0,1,1,1,1,1,0,1,1,1,1,0,1},
+	{1,0,1,1,1,1,0,1,1,1,1,1,0,1,1,0,1,1,1,1,1,0,1,1,1,1,0,1},
+	{1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+	{1,0,1,1,1,1,0,1,1,0,1,1,1,1,1,1,1,1,0,1,1,0,1,1,1,1,0,1},
+	{1,0,1,1,1,1,0,1,1,0,1,1,1,1,1,1,1,1,0,1,1,0,1,1,1,1,0,1},
+	{1,0,0,0,0,0,0,1,1,0,0,0,0,1,1,0,0,0,0,1,1,0,0,0,0,0,0,1},
+	{1,1,1,1,1,1,0,1,1,1,1,1,0,1,1,0,1,1,1,1,1,0,1,1,1,1,1,1},
+	{0,0,0,0,0,1,0,1,1,1,1,1,0,1,1,0,1,1,1,1,1,0,1,0,0,0,0,0},
+	{0,0,0,0,0,1,0,1,1,0,0,0,0,0,0,0,0,0,0,1,1,0,1,0,0,0,0,0},
+	{0,0,0,0,0,1,0,1,1,0,1,1,1,0,0,1,1,1,0,1,1,0,1,0,0,0,0,0},
+	{1,1,1,1,1,1,0,1,1,0,1,0,0,0,0,0,0,1,0,1,1,0,1,1,1,1,1,1},
+	{0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0}, // Túnel esquerdo/direito
+	{1,1,1,1,1,1,0,1,1,0,1,0,0,0,0,0,0,1,0,1,1,0,1,1,1,1,1,1},
+	{0,0,0,0,0,1,0,1,1,0,1,1,1,1,1,1,1,1,0,1,1,0,1,0,0,0,0,0},
+	{0,0,0,0,0,1,0,1,1,0,0,0,0,0,0,0,0,0,0,1,1,0,1,0,0,0,0,0},
+	{0,0,0,0,0,1,0,1,1,0,1,1,1,1,1,1,1,1,0,1,1,0,1,0,0,0,0,0},
+	{1,1,1,1,1,1,0,1,1,0,1,1,1,1,1,1,1,1,0,1,1,0,1,1,1,1,1,1},
+	{1,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,1},
+	{1,0,1,1,1,1,0,1,1,1,1,1,0,1,1,0,1,1,1,1,1,0,1,1,1,1,0,1},
+	{1,0,1,1,1,1,0,1,1,1,1,1,0,1,1,0,1,1,1,1,1,0,1,1,1,1,0,1},
+	{1,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,1},
+	{1,1,1,0,1,1,0,1,1,0,1,1,1,1,1,1,1,1,0,1,1,0,1,1,0,1,1,1},
+	{1,1,1,0,1,1,0,1,1,0,1,1,1,1,1,1,1,1,0,1,1,0,1,1,0,1,1,1},
+	{1,0,0,0,0,0,0,1,1,0,0,0,0,1,1,0,0,0,0,1,1,0,0,0,0,0,0,1},
+	{1,0,1,1,1,1,1,1,1,1,1,1,0,1,1,0,1,1,1,1,1,1,1,1,1,1,0,1},
+	{1,0,1,1,1,1,1,1,1,1,1,1,0,1,1,0,1,1,1,1,1,1,1,1,1,1,0,1},
+	{1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+	{1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
+	{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, // Linha 34 (Vidas/Frutas)
+	{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}  // Linha 35 (Vidas/Frutas)
+};
 
 //Starts up SDL and creates window
 bool init();
@@ -44,7 +88,7 @@ bool init()
 		}
 
 		// mudar o nome da janela quando for fazer pro outro algoritmo. Pensamos em como depois
-		gWindow = SDL_CreateWindow("Pac Man A* Edition", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
+		gWindow = SDL_CreateWindow("Pac Man A* Edition", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
 		if (gWindow == NULL)
 		{
 			printf("Window could not be created! SDL Error: %s\n", SDL_GetError());
@@ -96,6 +140,26 @@ bool loadMedia()
 	return success;
 }
 
+void drawMap() {
+	for (int i = 0; i < MAP_HEIGHT; ++i) {
+		for (int j = 0; j < MAP_WIDTH; ++j) {
+			SDL_Rect tileRect;
+
+			tileRect.x = j * TILE_SIZE;
+			tileRect.y = i * TILE_SIZE;
+			tileRect.w = TILE_SIZE;
+			tileRect.h = TILE_SIZE;
+
+			if (mapa[i][j] == 1) {
+				SDL_SetRenderDrawColor(gRenderer, 0, 0, 255, 255);
+				SDL_RenderFillRect(gRenderer, &tileRect);
+			}
+
+
+		}
+	}
+}
+
 void close()
 {
 	//Free loaded image
@@ -140,11 +204,13 @@ void mainLoop() {
 		pacMan.move(SCREEN_WIDTH, SCREEN_HEIGHT);
 
 		// limpa a tela
-		SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
+		SDL_SetRenderDrawColor(gRenderer, 0, 0, 0, 255);
 		SDL_RenderClear(gRenderer);
 
 
 		pacMan.render(gRenderer);
+
+		drawMap();
 
 		// atualiza a tela
 		SDL_RenderPresent(gRenderer);
