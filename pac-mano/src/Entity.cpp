@@ -1,8 +1,8 @@
 #include "Entity.h"
 
 Entity::Entity(LTexture* texture) {
-	mBox.x = 0;
-	mBox.y = 0;
+	mBox.w = TILE_SIZE;
+	mBox.h = TILE_SIZE;
 
 	mVelX = 0;
 	mVelY = 0;
@@ -10,8 +10,29 @@ Entity::Entity(LTexture* texture) {
 	mTexture = texture;
 }
 
-void Entity::move(const int SCREEN_WIDTH, const int SCREEN_HEIGHT){}
+void Entity::move(){}
 
 void Entity::render(SDL_Renderer* gRenderer) {
 	mTexture->render(mBox.x, mBox.y, gRenderer);
+}
+
+void Entity::setVel() {
+	switch (actDirection) {
+	case UP:
+		mVelX = 0;
+		mVelY = -ENTITY_VEL;
+		break;
+	case DOWN:
+		mVelX = 0;
+		mVelY = ENTITY_VEL;
+		break;
+	case LEFT:
+		mVelX = -ENTITY_VEL;
+		mVelY = 0;
+		break;
+	case RIGHT:
+		mVelX = ENTITY_VEL;
+		mVelY = 0;
+		break;
+	}
 }

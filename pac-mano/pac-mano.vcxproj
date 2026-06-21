@@ -145,12 +145,15 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\Entity.cpp" />
+    <ClCompile Include="src\Ghost.cpp" />
     <ClCompile Include="src\PacMan.cpp" />
     <ClCompile Include="src\LTexture.cpp" />
     <ClCompile Include="src\main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Entity.h" />
+    <ClInclude Include="src\Game.h" />
+    <ClInclude Include="src\Ghost.h" />
     <ClInclude Include="src\PacMan.h" />
     <ClInclude Include="src\LTexture.h" />
   </ItemGroup>

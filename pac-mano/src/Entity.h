@@ -5,14 +5,24 @@ class Entity {
 public:
 	Entity(LTexture* texture);
 
-	virtual void move(const int SCREEN_WIDTH, const int SCREEN_HEIGHT);
+	// atributos gerais
+	static const int ENTITY_WIDTH = 15;
+	static const int ENTITY_HEIGHT = 15;
+	static const int ENTITY_VEL = 1;
+
+	// métodos
+	virtual void move();
 
 	void render(SDL_Renderer* gRenderer);
 
 	inline SDL_Rect getBox() { return mBox; }
 
+	void setVel();
+
 protected:
-	SDL_Rect mBox;
-	int mVelX, mVelY;
-	LTexture* mTexture;
+	Direction actDirection; // direção atual
+	Direction nxtDirection; // próxima direção
+	SDL_Rect mBox;			// hitbox
+	int mVelX, mVelY;		// velocidade horizontal e vertical
+	LTexture* mTexture;		// textura
 };

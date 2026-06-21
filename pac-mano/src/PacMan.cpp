@@ -1,36 +1,96 @@
 #include "PacMan.h"
 
+PacMan::PacMan(LTexture* texture) : Entity(texture){
+	mBox.x = 14 * TILE_SIZE;
+	mBox.y = 26 * TILE_SIZE;
+	actDirection = RIGHT;
+	nxtDirection = RIGHT;
+}
+
 void PacMan::handleEvent(SDL_Event& e) {
 	if (e.type == SDL_KEYDOWN && e.key.repeat == 0) {
 		switch (e.key.keysym.sym) {
 		case SDLK_UP: 
-			mVelY = -PACMAN_VEL;
-			mVelX = 0;
+			nxtDirection = UP;
 			break;
 		case SDLK_DOWN: 
-			mVelY = PACMAN_VEL; 
-			mVelX = 0;
+			nxtDirection = DOWN;
 			break;
 		case SDLK_LEFT:
-			mVelX = -PACMAN_VEL;
-			mVelY = 0;
+			nxtDirection = LEFT;
 			break;
 		case SDLK_RIGHT: 
-			mVelX = PACMAN_VEL;
-			mVelY = 0;
+			nxtDirection = RIGHT;
 			break;
 		}
 	}
 }
 
-void PacMan::move(const int SCREEN_WIDTH, const int SCREEN_HEIGHT) {
+void PacMan::checkDirection() {
+	int nxtX, nxtY;
+
+	switch (nxtDirection) {
+	case UP:
+		nxtX = mBox.x;
+		nxtY = mBox.y - ENTITY_VEL;
+		break;
+	case DOWN:
+		nxtX = mBox.x;
+		nxtY = mBox.y + ENTITY_VEL;
+		break;
+	case LEFT:
+		nxtX = mBox.x - ENTITY_VEL;
+		nxtY = mBox.y;
+		break;
+	case RIGHT:
+		nxtX = mBox.x + ENTITY_VEL;
+		nxtY = mBox.y;
+		break;
+	default:
+		return;
+	}
+
+	int lSup = nxtY / TILE_SIZE; // linha superior
+	int lInf = (nxtY + mBox.h - 1) / TILE_SIZE; // linha inferior
+	int cEsq = nxtX / TILE_SIZE; // coluna esquerda
+	int cDir = (nxtX + mBox.w - 1) / TILE_SIZE; // coluna direita
+
+	// verifica se existe uma parede em cada canto
+	bool collision = (mapa[lSup][cEsq] == 1 || mapa[lInf][cEsq] == 1 || mapa[lSup][cDir] == 1 || mapa[lInf][cDir] == 1);
+
+	if (!collision) { 
+		actDirection = nxtDirection;
+		setVel();
+	}
+}
+
+void PacMan::move() {
 	mBox.x += mVelX;
-	if (mBox.x < 0 || (mBox.x + PACMAN_WIDTH > SCREEN_WIDTH)) {
+
+	// testa colisão considerando todos os cantos da entidade
+	int lSup = mBox.y / TILE_SIZE; // linha superior
+	int lInf = (mBox.y + mBox.h - 1) / TILE_SIZE; // linha inferior
+	int cEsq = mBox.x / TILE_SIZE; // coluna esquerda
+	int cDir = (mBox.x + mBox.w - 1) / TILE_SIZE; // coluna direita
+
+	// verifica se existe uma parede em cada canto
+	bool collision = (mapa[lSup][cEsq] == 1 || mapa[lInf][cEsq] == 1 || mapa[lSup][cDir] == 1 || mapa[lInf][cDir] == 1);
+
+	if (cEsq < 0 || cDir > MAP_WIDTH || collision) {
 		// move back
 		mBox.x -= mVelX;
 	}
 	mBox.y += mVelY;
-	if (mBox.y < 0 || (mBox.y + PACMAN_HEIGHT > SCREEN_HEIGHT)) {
+
+	lSup = mBox.y / TILE_SIZE; // linha superior
+	lInf = (mBox.y + mBox.h - 1) / TILE_SIZE; // linha inferior
+	cEsq = mBox.x / TILE_SIZE; // coluna esquerda
+	cDir = (mBox.x + mBox.w - 1) / TILE_SIZE; // coluna direita
+
+	// verifica se existe uma parede em cada canto
+	collision = (mapa[lSup][cEsq] == 1 || mapa[lInf][cEsq] == 1 || mapa[lSup][cDir] == 1 || mapa[lInf][cDir] == 1);
+
+	if (lSup < 0 || lInf > MAP_HEIGHT || collision) {
 		// move back
 		mBox.y -= mVelY;
 	}

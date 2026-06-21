@@ -1,4 +1,5 @@
 #include "LTexture.h"
+#include "Entity.h"
 
 LTexture::LTexture() {
 	mTexture = NULL;
@@ -27,8 +28,8 @@ bool LTexture::loadFromFile(std::string path, SDL_Renderer* gRenderer) {
 		if (newTexture == NULL)	{ printf("Unable to create texture from %s! SDL Error: %s\n", path.c_str(), SDL_GetError()); }
 		else {
 			// get image dimensions
-			mWidth = loadedSurface->w / 10;
-			mHeight = loadedSurface->h / 10;
+			mWidth = Entity::ENTITY_WIDTH;
+			mHeight = Entity::ENTITY_HEIGHT;
 		}
 
 		SDL_FreeSurface(loadedSurface);
