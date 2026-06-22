@@ -1,57 +1,52 @@
 #include <cmath>
-#include "LTexture.h"
 #include "PacMan.h"
+#include "Ghost.h"
 
-//The window we'll be rendering to
+// janela principal
 SDL_Window* gWindow = NULL;
 
-//The window renderer
+// renderer da janela
 SDL_Renderer* gRenderer = NULL;
 
-// scene textures
+// texturas da cena
 LTexture gPacManTexture;
+LTexture gGhostTexture;
 
-
-
-bool init()
-{
+bool init() {
 	bool success = true;
 
-	//Initialize SDL
-	if (SDL_Init(SDL_INIT_VIDEO) < 0)
-	{
-		printf("SDL could not initialize! SDL Error: %s\n", SDL_GetError());
+	// inicializa o SDL
+	if (SDL_Init(SDL_INIT_VIDEO) < 0) {
+		printf("Nao foi possivel incializar o SDL! SDL Error: %s\n", SDL_GetError());
 		success = false;
 	}
 	else
 	{
-		// set texture filtering to linear
+		// seta o filtro da textura linear
 		if (!SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1")) {
-			printf("Warning: Linear texture filtering not enabled!");
+			printf("AVISO: Filtro de textura linear inativo!");
 		}
 
-		// mudar o nome da janela quando for fazer pro outro algoritmo. Pensamos em como depois
+// ====================== mudar o nome da janela quando for fazer pro outro algoritmo. Pensamos em como depois ======================
 		gWindow = SDL_CreateWindow("Pac Man A* Edition", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
-		if (gWindow == NULL)
-		{
-			printf("Window could not be created! SDL Error: %s\n", SDL_GetError());
+		if (gWindow == NULL) {
+			printf("Nao foi possivel criar a janela! SDL Error: %s\n", SDL_GetError());
 			success = false;
 		}
-		else
-		{
+		else {
 			gRenderer = SDL_CreateRenderer(gWindow, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 			if (gRenderer == NULL) {
-				printf("Renderer could not be created! SDL Error: %s\n", SDL_GetError());
+				printf("Nao foi possivel criar o Renderer! SDL Error: %s\n", SDL_GetError());
 				success = false;
 			}
 			else {
-				// initialize renderer color
-				SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
+				// inicializa a cor do renderer
+				SDL_SetRenderDrawColor(gRenderer, 255, 255, 255, 255);
 
-				// initialize PNG loading
+				// inicializa o carregamento de PNG
 				int imgFlags = IMG_INIT_PNG;
 				if (!(IMG_Init(imgFlags) & imgFlags)) {
-					printf("SDL_image could not initialize! SDL_image Error: %s\n", IMG_GetError());
+					printf("Nao foi possivel inicializar o SDL_image! SDL_image Error: %s\n", IMG_GetError());
 					success = false;
 				}
 			}
@@ -61,22 +56,18 @@ bool init()
 	return success;
 }
 
-bool loadMedia()
-{
-	//Loading success flag
+bool loadMedia() {
 	bool success = true;
 
-	//Load PNG surface
-	/*gTexture = IMG_LoadTexture(gRenderer, "assets/texture.png");
-	if (gTexture == NULL)
-	{
-		printf("Failed to load texture image!\n");
+	// textura do Pac
+	if (!gPacManTexture.loadFromFile("assets/PacMan2.bmp", gRenderer)) {
+		printf("Falha no carregamento da textura do Pac!\n");
 		success = false;
-	}*/
+	}
 
-	// load PacMan texture
-	if (!gPacManTexture.loadFromFile("assets/PacMan.bmp", gRenderer)) {
-		printf("Failed to load texture image!\n");
+	// textura do fantasma
+	if (!gGhostTexture.loadFromFile("assets/Ghost.bmp", gRenderer)) {
+		printf("Falha no carregamento da textura do Ghost!");
 		success = false;
 	}
 
@@ -103,37 +94,46 @@ void drawMap() {
 	}
 }
 
-void close()
-{
-	//Free loaded image
-    // SDL_DestroyTexture(gTexture);
-    //gTexture = NULL;
+void close() {
 	gPacManTexture.free();
+	gGhostTexture.free();
 
-    //Destroy window    
+    // destroi a janela  
     SDL_DestroyRenderer(gRenderer);
     SDL_DestroyWindow(gWindow);
     gWindow = NULL;
     gRenderer = NULL;
 
-    //Quit SDL subsystems
+    // fecha os subsistemas SDL
     IMG_Quit();
     SDL_Quit();
 }
 
-void mainLoop() {
+void start() {
 	bool quit = false;
 
-	// Event handler
+	// manipulador de eventos
 	SDL_Event e;
 
 	// PacMan
 	PacMan pacMan(&gPacManTexture);
 
-	// enquanto a aplicação tá rodando
+	// fantasma
+	Ghost ghost(&gGhostTexture);
+
+	std::vector<std::pair<int, int>> route;
+
+	route.emplace_back(14, 17);
+	route.emplace_back(14, 18);
+	route.emplace_back(14, 19);
+	route.emplace_back(13, 19);
+
+	std::reverse(route.begin(), route.end());
+
+	// loop principal
 	while (!quit)
 	{
-		// lida com eventos na fila
+		// lida com os eventos
 		while (SDL_PollEvent(&e) != 0)
 		{
 			if (e.type == SDL_QUIT)
@@ -144,7 +144,9 @@ void mainLoop() {
 			pacMan.handleEvent(e);
 		}
 
-		pacMan.checkDirection();
+		ghost.checkDirection(&route);
+		ghost.move();
+		pacMan.checkDirection();		
 		pacMan.move();
 
 		// limpa a tela
@@ -153,6 +155,7 @@ void mainLoop() {
 
 
 		pacMan.render(gRenderer);
+		ghost.render(gRenderer);
 
 		drawMap();
 
@@ -169,10 +172,10 @@ int main(int argc, char* args[]) {
 	else {
 		// carrega midia utilizada
 		if (!loadMedia()) {
-			printf("falha ao carregar midia!\n");
+			printf("Falha ao carregar midia!\n");
 		}
 		else {
-			mainLoop();
+			start();
 		}
 	}
 

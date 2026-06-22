@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <string>
 #include <vector>
+#include <algorithm>
 
 // dimensão dos tiles
 const int TILE_SIZE = 22;
