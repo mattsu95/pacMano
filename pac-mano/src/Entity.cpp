@@ -36,3 +36,14 @@ void Entity::setVel() {
 		break;
 	}
 }
+
+void Entity::pause() {
+	if (!paused) {
+		mVelX = mVelY = 0;
+		paused = true;
+	}
+	else {
+		setVel();
+		paused = false;
+	}
+}

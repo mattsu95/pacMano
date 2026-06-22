@@ -8,6 +8,8 @@ PacMan::PacMan(LTexture* texture) : Entity(texture){
 }
 
 void PacMan::handleEvent(SDL_Event& e) {
+	if (paused) { return; } // evita mudança de direção se estiver pausado
+
 	if (e.type == SDL_KEYDOWN && e.key.repeat == 0) {
 		switch (e.key.keysym.sym) {
 		case SDLK_UP: 

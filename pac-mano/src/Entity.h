@@ -15,9 +15,14 @@ public:
 
 	void render(SDL_Renderer* gRenderer);
 
-	inline SDL_Rect getBox() { return mBox; }
-
 	void setVel();
+
+	void pause();
+
+	// getters e setters
+	inline SDL_Rect getBox() { return mBox; }
+	
+	inline bool isPaused() { return paused; }
 
 protected:
 	Direction actDirection; // direção atual
@@ -25,4 +30,5 @@ protected:
 	SDL_Rect mBox;			// hitbox
 	int mVelX, mVelY;		// velocidade horizontal e vertical
 	LTexture* mTexture;		// textura
+	bool paused = false;	// flag pra pausar
 };

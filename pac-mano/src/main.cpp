@@ -125,8 +125,8 @@ void start() {
 
 	route.emplace_back(14, 17);
 	route.emplace_back(14, 18);
-	route.emplace_back(14, 19);
-	route.emplace_back(13, 19);
+	route.emplace_back(15, 18);
+	route.emplace_back(14, 18);
 
 	std::reverse(route.begin(), route.end());
 
@@ -134,20 +134,29 @@ void start() {
 	while (!quit)
 	{
 		// lida com os eventos
-		while (SDL_PollEvent(&e) != 0)
-		{
-			if (e.type == SDL_QUIT)
-			{
+		while (SDL_PollEvent(&e) != 0) {
+			if (e.type == SDL_QUIT)	{
 				quit = true;
+			}
+
+			if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_SPACE) {
+				pacMan.pause();
+				ghost.pause();
 			}
 
 			pacMan.handleEvent(e);
 		}
 
-		ghost.checkDirection(&route);
-		ghost.move();
-		pacMan.checkDirection();		
-		pacMan.move();
+		// RECALCULAR A ROTA SÓ QUANDO O FANTASMA AVANÇAR UMA POSIÇÃO!!!!!!!!!!!!!!
+
+		if (!ghost.isPaused()) {
+			ghost.checkDirection(&route);
+			ghost.move();
+		}
+		if (!pacMan.isPaused()) {
+			pacMan.checkDirection();		
+			pacMan.move();
+		}
 
 		// limpa a tela
 		SDL_SetRenderDrawColor(gRenderer, 0, 0, 0, 255);
