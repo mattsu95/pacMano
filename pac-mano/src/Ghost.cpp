@@ -8,12 +8,15 @@ Ghost::Ghost(LTexture* texture): Entity(texture) {
 	nxtPos = { 13, 17 };
 }
 
-void Ghost::checkDirection(std::vector<std::pair<int, int>>* route) {
+bool Ghost::checkDirection(std::vector<std::pair<int, int>>* route) {
 	int actX = mBox.x / TILE_SIZE;
 	int actY = mBox.y / TILE_SIZE;
-	if (std::make_pair(actX, actY) != nxtPos) { return; }
 
-	if (route == nullptr || route->empty()) { return; }
+	printf("%d %d\n", actX, actY);
+
+	if (std::make_pair(actX, actY) != nxtPos) { return false; }
+
+	if (route == nullptr || route->empty()) { return true; }
 	auto nxt = route->back();
 	nxtPos = nxt;
 	route->pop_back();
@@ -41,6 +44,7 @@ void Ghost::checkDirection(std::vector<std::pair<int, int>>* route) {
 	}
 
 	setVel();
+	return false;
 }
 
 void Ghost::move() {

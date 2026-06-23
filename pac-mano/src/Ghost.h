@@ -9,7 +9,7 @@ public:
 
 	void move();
 
-	void checkDirection(std::vector<std::pair<int, int>>* route);
+	bool checkDirection(std::vector<std::pair<int, int>>* route);
 
 private:
 	std::pair<int, int> nxtPos;

@@ -1,5 +1,5 @@
 #pragma once
-#include "Game.h"
+#include "Constants.h"
 
 class LTexture {
 public:

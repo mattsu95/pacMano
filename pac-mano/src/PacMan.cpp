@@ -77,8 +77,14 @@ void PacMan::move() {
 
 	// verifica se existe uma parede em cada canto
 	bool collision = (mapa[lSup][cEsq] == 1 || mapa[lInf][cEsq] == 1 || mapa[lSup][cDir] == 1 || mapa[lInf][cDir] == 1);
+	if ((cEsq < 0 && lSup == 17) && actDirection == LEFT) {
+		mBox.x = SCREEN_WIDTH - mBox.w;
+	}	
+	else if ((cDir >= MAP_WIDTH && lSup == 17) && actDirection == RIGHT) {
+		mBox.x = 0 + mBox.w;
+	}
 
-	if (cEsq < 0 || cDir > MAP_WIDTH || collision) {
+	if (collision) {
 		// move back
 		mBox.x -= mVelX;
 	}
