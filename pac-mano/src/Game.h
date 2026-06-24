@@ -3,6 +3,7 @@
 #include "LTexture.h"
 #include "PacMan.h"
 #include "Ghost.h"
+#include "Astar.h"	
 
 class Game {
 public:
@@ -29,11 +30,18 @@ public:
 	// Roda a aplicação
 	void start();
 
-	// Verifica se o fantasma pegou o Pac
-	bool checkEndGame(PacMan* p, Ghost* g);
-
 	// Libera mídia e desliga o SDL
 	void close();
+
+	// Desenha a rota retornada pelo algoritmo
+	void drawRoute(std::vector<std::pair<int, int>>* route);
+
+private:
+	// Armazena a posição anterior do Pacman para detectar mudanças
+	std::pair<int, int> lastPacPos = { -1, -1 };
+
+	// Detecta se o Pacman mudou de célula no grid
+	bool hasPacMoved(const SDL_Rect& pacBox);
 };
 
 

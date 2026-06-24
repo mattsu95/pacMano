@@ -16,7 +16,7 @@ const int SCREEN_WIDTH = MAP_WIDTH * TILE_SIZE;
 const int SCREEN_HEIGHT = MAP_HEIGHT * TILE_SIZE;
 
 // direções
-const enum Direction { UP, DOWN, LEFT, RIGHT };
+const enum Direction { NONE, UP, DOWN, LEFT, RIGHT };
 
 const int mapa[MAP_HEIGHT][MAP_WIDTH] = {
 	{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, // Linha 0 (Placar)

@@ -8,12 +8,14 @@ public:
 	// atributos gerais
 	static const int ENTITY_WIDTH = TILE_SIZE;
 	static const int ENTITY_HEIGHT = TILE_SIZE;
-	static const int ENTITY_VEL = 2;
+	static const int ENTITY_VEL = 1;
 
 	// métodos
 	virtual void move();
 
 	void render(SDL_Renderer* gRenderer);
+
+	void checkDirection();
 
 	void setVel();
 

@@ -9,7 +9,9 @@ public:
 
 	void move();
 
-	bool checkDirection(std::vector<std::pair<int, int>>* route);
+	bool followRoute(std::vector<std::pair<int, int>>* route, SDL_Rect pacBox);
+
+	void resetRoute();
 
 private:
 	std::pair<int, int> nxtPos;

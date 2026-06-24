@@ -144,6 +144,7 @@
     </Manifest>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\Astar.cpp" />
     <ClCompile Include="src\Entity.cpp" />
     <ClCompile Include="src\Game.cpp" />
     <ClCompile Include="src\Ghost.cpp" />
@@ -152,6 +153,7 @@
     <ClCompile Include="src\main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Astar.h" />
     <ClInclude Include="src\Constants.h" />
     <ClInclude Include="src\Entity.h" />
     <ClInclude Include="src\Game.h" />

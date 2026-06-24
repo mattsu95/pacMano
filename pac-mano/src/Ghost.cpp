@@ -8,15 +8,24 @@ Ghost::Ghost(LTexture* texture): Entity(texture) {
 	nxtPos = { 13, 17 };
 }
 
-bool Ghost::checkDirection(std::vector<std::pair<int, int>>* route) {
+void Ghost::resetRoute() {
+	nxtPos = { mBox.x / TILE_SIZE, mBox.y / TILE_SIZE };
+}
+
+bool Ghost::followRoute(std::vector<std::pair<int, int>>* route, SDL_Rect pacBox) {
 	int actX = mBox.x / TILE_SIZE;
 	int actY = mBox.y / TILE_SIZE;
+	int pacX = pacBox.x / TILE_SIZE;
+	int pacY = pacBox.y / TILE_SIZE;
 
-	printf("%d %d\n", actX, actY);
+	if (actX == pacX && actY == pacY) { return true; }
 
-	if (std::make_pair(actX, actY) != nxtPos) { return false; }
+	if (route == nullptr || route->empty()) { // se chegar ao final da rota (pacMan)
+		return false;
+	}
 
-	if (route == nullptr || route->empty()) { return true; }
+	if (std::make_pair(actX, actY) != nxtPos) { return false; } // pra evitar mudar de direção antes da hora em virtude do arredondamento
+
 	auto nxt = route->back();
 	nxtPos = nxt;
 	route->pop_back();
@@ -26,24 +35,25 @@ bool Ghost::checkDirection(std::vector<std::pair<int, int>>* route) {
 	std::pair<int, int> baixo = { actX, actY + 1 };
 	std::pair<int, int> cima = { actX, actY - 1 };
 
-	printf("%d %d \n", nxt.first, nxt.second);
-	
-
-
 	if (nxt == direita) {
-		actDirection = RIGHT;
+		nxtDirection = RIGHT;
 	}
 	if (nxt == esquerda) {
-		actDirection = LEFT;
+		nxtDirection = LEFT;
 	}
 	if (nxt == baixo) {
-		actDirection = DOWN;
+		nxtDirection = DOWN;
 	}
 	if (nxt == cima) {
-		actDirection = UP;
+		nxtDirection = UP;
 	}
+	
+	/*bool rotaRecalculada = aStar->calcularCaminho(mBox.y / TILE_SIZE, mBox.x / TILE_SIZE, pacBox.y / TILE_SIZE, pacBox.x / TILE_SIZE);
+	if (rotaRecalculada) {
+		*route = aStar->getMCaminhoAsVector();
+		std::reverse(route->begin(), route->end());
+	}*/
 
-	setVel();
 	return false;
 }
 

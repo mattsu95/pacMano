@@ -1,10 +1,10 @@
 #include "PacMan.h"
 
 PacMan::PacMan(LTexture* texture) : Entity(texture){
-	mBox.x = 14 * TILE_SIZE;
-	mBox.y = 26 * TILE_SIZE;
-	actDirection = RIGHT;
-	nxtDirection = RIGHT;
+	mBox.x = 18 * TILE_SIZE;
+	mBox.y = 10 * TILE_SIZE;
+	//actDirection = RIGHT;
+	//nxtDirection = RIGHT;
 }
 
 void PacMan::handleEvent(SDL_Event& e) {
@@ -28,44 +28,6 @@ void PacMan::handleEvent(SDL_Event& e) {
 	}
 }
 
-void PacMan::checkDirection() {
-	int nxtX, nxtY;
-
-	switch (nxtDirection) {
-	case UP:
-		nxtX = mBox.x;
-		nxtY = mBox.y - ENTITY_VEL;
-		break;
-	case DOWN:
-		nxtX = mBox.x;
-		nxtY = mBox.y + ENTITY_VEL;
-		break;
-	case LEFT:
-		nxtX = mBox.x - ENTITY_VEL;
-		nxtY = mBox.y;
-		break;
-	case RIGHT:
-		nxtX = mBox.x + ENTITY_VEL;
-		nxtY = mBox.y;
-		break;
-	default:
-		return;
-	}
-
-	int lSup = nxtY / TILE_SIZE; // linha superior
-	int lInf = (nxtY + mBox.h - 1) / TILE_SIZE; // linha inferior
-	int cEsq = nxtX / TILE_SIZE; // coluna esquerda
-	int cDir = (nxtX + mBox.w - 1) / TILE_SIZE; // coluna direita
-
-	// verifica se existe uma parede em cada canto
-	bool collision = (mapa[lSup][cEsq] == 1 || mapa[lInf][cEsq] == 1 || mapa[lSup][cDir] == 1 || mapa[lInf][cDir] == 1);
-
-	if (!collision) { 
-		actDirection = nxtDirection;
-		setVel();
-	}
-}
-
 void PacMan::move() {
 	mBox.x += mVelX;
 
@@ -77,7 +39,8 @@ void PacMan::move() {
 
 	// verifica se existe uma parede em cada canto
 	bool collision = (mapa[lSup][cEsq] == 1 || mapa[lInf][cEsq] == 1 || mapa[lSup][cDir] == 1 || mapa[lInf][cDir] == 1);
-	if ((cEsq < 0 && lSup == 17) && actDirection == LEFT) {
+
+	if ((cEsq < 0 && lSup == 17) && actDirection == LEFT) { // teleporte dos túneis
 		mBox.x = SCREEN_WIDTH - mBox.w;
 	}	
 	else if ((cDir >= MAP_WIDTH && lSup == 17) && actDirection == RIGHT) {

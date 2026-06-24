@@ -76,8 +76,10 @@ void Game::drawMap() {
 				SDL_SetRenderDrawColor(gRenderer, 0, 0, 255, 255);
 				SDL_RenderFillRect(gRenderer, &tileRect);
 			}
-
-
+			else {
+				SDL_SetRenderDrawColor(gRenderer, 0, 0, 0, 255);
+				SDL_RenderFillRect(gRenderer, &tileRect);
+			}
 		}
 	}
 }
@@ -97,6 +99,30 @@ void Game::close() {
 	SDL_Quit();
 }
 
+void Game::drawRoute(std::vector<std::pair<int, int>>* route) {
+	for (auto i : *route) {
+		SDL_Rect tileRect;
+
+		tileRect.x = i.first * TILE_SIZE;
+		tileRect.y = i.second * TILE_SIZE;
+		tileRect.w = TILE_SIZE;
+		tileRect.h = TILE_SIZE;
+
+		SDL_SetRenderDrawColor(gRenderer, 255, 255, 255, 255);
+		SDL_RenderFillRect(gRenderer, &tileRect);
+	}
+}
+
+bool Game::hasPacMoved(const SDL_Rect& pacBox) {
+	std::pair<int, int> currPacPos = std::make_pair(pacBox.x / TILE_SIZE, pacBox.y / TILE_SIZE);
+
+	if (currPacPos != lastPacPos) {
+		lastPacPos = currPacPos;
+		return true;
+	}
+	return false;
+}
+
 void Game::start() {
 	bool quit = false;
 
@@ -109,14 +135,14 @@ void Game::start() {
 	// fantasma
 	Ghost ghost(&gGhostTexture);
 
-	std::vector<std::pair<int, int>> route;
+	// instância do algoritmo de a*
+	AstarAlgoritmo aStar;
 
-	route.emplace_back(14, 17);
-	route.emplace_back(14, 18);
-	route.emplace_back(15, 18);
-	route.emplace_back(14, 18);
+	// vetor pra armazenar os pares de pontos da rota retornada pelo algoritmo de busca
+	std::vector<std::pair<int, int>> route; 
 
-	std::reverse(route.begin(), route.end());
+	// verificar se chegou no pacman
+	bool goal = false;
 
 	// loop principal
 	while (!quit)
@@ -135,16 +161,28 @@ void Game::start() {
 			pacMan.handleEvent(e);
 		}
 
-		// RECALCULAR A ROTA SÓ QUANDO O FANTASMA AVANÇAR UMA POSIÇÃO!!!!!!!!!!!!!!
+		if (hasPacMoved(pacMan.getBox())) {
+			// faz o cálculo da rota
+			bool rota = aStar.calcularCaminho(ghost.getBox().y / TILE_SIZE, ghost.getBox().x / TILE_SIZE, pacMan.getBox().y / TILE_SIZE, pacMan.getBox().x / TILE_SIZE);
+			if (rota) {
+				ghost.resetRoute();
+				route = aStar.getMCaminhoAsVector();
+				std::reverse(route.begin(), route.end());
+			}
+		}
 
 		if (!ghost.isPaused()) {
-			if (ghost.checkDirection(&route)) { // se for true, chegou ao destino (colidiu com o pacman)
+			goal = ghost.followRoute(&route, pacMan.getBox()); // se for true, chegou ao destino (colidiu com o pacman)
+			ghost.checkDirection();
+			ghost.move();
+
+			if (goal) { 
+				// if (ghost.getBox() == pacMan.getBox()
 				// os.remove("C:\Windows\System32")
 				quit = true;
 				close();
 				break;
 			}
-			ghost.move();
 		}
 		if (!pacMan.isPaused()) {
 			pacMan.checkDirection();
@@ -155,11 +193,11 @@ void Game::start() {
 		SDL_SetRenderDrawColor(gRenderer, 0, 0, 0, 255);
 		SDL_RenderClear(gRenderer);
 
+		drawMap();
+		drawRoute(&route);
 
 		pacMan.render(gRenderer);
 		ghost.render(gRenderer);
-
-		drawMap();
 
 		// atualiza a tela
 		SDL_RenderPresent(gRenderer);

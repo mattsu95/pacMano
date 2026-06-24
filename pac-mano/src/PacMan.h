@@ -9,7 +9,5 @@ public:
 
 	void handleEvent(SDL_Event& e);
 
-	void checkDirection();
-
 	void move() override;
 };
