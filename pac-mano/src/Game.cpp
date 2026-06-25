@@ -1,5 +1,13 @@
 #include "Game.h"
 
+Game::Game() {
+	PacMan p(&gPacManTexture);
+	pacMan = p;
+
+	Ghost g(&gGhostTexture);
+	ghost = g;
+}
+
 bool Game::init() {
 	bool success = true;
 
@@ -15,8 +23,7 @@ bool Game::init() {
 			printf("AVISO: Filtro de textura linear inativo!");
 		}
 
-		// ====================== mudar o nome da janela quando for fazer pro outro algoritmo. Pensamos em como depois ======================
-		gWindow = SDL_CreateWindow("Pac Man A* Edition", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
+		gWindow = SDL_CreateWindow("Pac Man (simulation)", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
 		if (gWindow == NULL) {
 			printf("Nao foi possivel criar a janela! SDL Error: %s\n", SDL_GetError());
 			success = false;
@@ -46,6 +53,16 @@ bool Game::init() {
 
 bool Game::loadMedia() {
 	bool success = true;
+
+	// texturas do menu
+	if (!gMenuAstarTexture.loadFromFile("assets/ngAS.png", gRenderer)) {
+		printf("Falha no carregamento da textura 1 do menu!\n");
+		success = false;
+	}
+	if (!gMenuAlphaBetaTexture.loadFromFile("assets/ngABP.png", gRenderer)) {
+		printf("Falha no carregamento da textura 2 do menu!\n");
+		success = false;
+	}
 
 	// textura do Pac
 	if (!gPacManTexture.loadFromFile("assets/PacMan2.bmp", gRenderer)) {
@@ -85,6 +102,8 @@ void Game::drawMap() {
 }
 
 void Game::close() {
+	gMenuAlphaBetaTexture.free();
+	gMenuAstarTexture.free();
 	gPacManTexture.free();
 	gGhostTexture.free();
 
@@ -123,17 +142,75 @@ bool Game::hasPacMoved(const SDL_Rect& pacBox) {
 	return false;
 }
 
+void Game::menu(bool *quit) {
+	bool start = false;		// flag pra indicar saída do menu e início do jogo
+	this->aStarAlg = true;  // define se vai usar a* ou poda alfa-beta
+
+	// define os tamanhos das imagens para que preencham toda a tela
+	gMenuAlphaBetaTexture.setWidth(SCREEN_WIDTH);
+	gMenuAlphaBetaTexture.setHeight(SCREEN_HEIGHT);
+
+	gMenuAstarTexture.setWidth(SCREEN_WIDTH);
+	gMenuAstarTexture.setHeight(SCREEN_HEIGHT);
+
+	SDL_Event e;
+
+	while (!*quit) {
+		while (SDL_PollEvent(&e) != 0) {
+			if (e.type == SDL_QUIT) {
+				*quit = true;
+			}
+			if (e.type == SDL_KEYDOWN && e.key.repeat == 0) {
+				switch (e.key.keysym.sym) {
+				case SDLK_DOWN:
+				case SDLK_UP:
+					this->aStarAlg = !this->aStarAlg;
+					break;
+				case SDLK_ESCAPE:
+					*quit = true;
+					break;
+				case SDLK_RETURN:
+					start = true;
+					*quit = false;
+					break;
+				}
+			}
+		}
+
+		// limpa a tela
+		SDL_SetRenderDrawColor(gRenderer, 0, 0, 0, 255);
+		SDL_RenderClear(gRenderer);
+
+		// renderiza a imagem atual do menu
+		if (this->aStarAlg) {
+			gMenuAstarTexture.render(0, 0, gRenderer);
+		}
+		else {
+			gMenuAlphaBetaTexture.render(0, 0, gRenderer);
+		}
+
+		// atualiza a tela
+		SDL_RenderPresent(gRenderer);
+
+		if (start) {
+			break;			
+		}
+	}
+}
+
+void Game::restart() {
+	PacMan p(&gPacManTexture);
+	pacMan = p;
+
+	Ghost g(&gGhostTexture);
+	ghost = g;
+}
+
 void Game::start() {
 	bool quit = false;
 
 	// manipulador de eventos
 	SDL_Event e;
-
-	// PacMan
-	PacMan pacMan(&gPacManTexture);
-
-	// fantasma
-	Ghost ghost(&gGhostTexture);
 
 	// instância do algoritmo de a*
 	AstarAlgoritmo aStar;
@@ -144,9 +221,11 @@ void Game::start() {
 	// verificar se chegou no pacman
 	bool goal = false;
 
+	// renderiza o menu antes de cair no loop do jogo
+	menu(&quit);
+
 	// loop principal
-	while (!quit)
-	{
+	while (!quit) {
 		// lida com os eventos
 		while (SDL_PollEvent(&e) != 0) {
 			if (e.type == SDL_QUIT) {
@@ -161,7 +240,7 @@ void Game::start() {
 			pacMan.handleEvent(e);
 		}
 
-		if (hasPacMoved(pacMan.getBox())) {
+		if (hasPacMoved(pacMan.getBox()) || goal) { // recalcula a rota se o pac se moveu ou se aconteceu um restart
 			// faz o cálculo da rota
 			bool rota = aStar.calcularCaminho(ghost.getBox().y / TILE_SIZE, ghost.getBox().x / TILE_SIZE, pacMan.getBox().y / TILE_SIZE, pacMan.getBox().x / TILE_SIZE);
 			if (rota) {
@@ -177,11 +256,10 @@ void Game::start() {
 			ghost.move();
 
 			if (goal) { 
-				// if (ghost.getBox() == pacMan.getBox()
 				// os.remove("C:\Windows\System32")
-				quit = true;
-				close();
-				break;
+				menu(&quit);	// volta pro menu
+				restart();		// reinicializa as entidades
+				route.clear();	// limpa a rota
 			}
 		}
 		if (!pacMan.isPaused()) {

@@ -8,7 +8,7 @@ public:
 	// atributos gerais
 	static const int ENTITY_WIDTH = TILE_SIZE;
 	static const int ENTITY_HEIGHT = TILE_SIZE;
-	static const int ENTITY_VEL = 1;
+	static const int ENTITY_VEL = 2;
 
 	// métodos
 	virtual void move();

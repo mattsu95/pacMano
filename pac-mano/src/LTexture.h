@@ -15,9 +15,11 @@ public:
 	// renders texture at a given position
 	void render(int x, int y, SDL_Renderer* gRenderer);
 
-	// getters
+	// getters e setters
 	inline int getWidth() { return mWidth; }
 	inline int getHeight() { return mHeight; }
+	inline void setWidth(int width) { mWidth = width; }
+	inline void setHeight(int height) { mHeight = height; }
 
 private:
 	SDL_Texture* mTexture;
