@@ -1,6 +1,7 @@
 #pragma once
 #include <SDL.h>
 #include <SDL_image.h>
+#include <SDL_ttf.h>
 #include <stdio.h>
 #include <string>
 #include <vector>
@@ -17,6 +18,9 @@ const int SCREEN_HEIGHT = (MAP_HEIGHT) * TILE_SIZE;
 
 // direções
 const enum Direction { NONE, UP, DOWN, LEFT, RIGHT };
+
+// alinhamento
+const enum class ALIGN { LEFT, CENTER, RIGHT };
 
 const int mapa[MAP_HEIGHT][MAP_WIDTH] = {
 	{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, // Linha 0 (Placar)

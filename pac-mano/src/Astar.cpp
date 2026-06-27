@@ -158,8 +158,17 @@ bool AstarAlgoritmo::calcularCaminho(int linhaInicio, int colunaInicio, int linh
 std::vector<std::pair<int, int>> AstarAlgoritmo::getMCaminhoAsVector() {
     std::vector<std::pair<int, int>> route;
 
+    /*for (int i = 0; i < m_tamanhoCaminho; ++i) {
+        int y = m_caminho[i]->linha;
+        int x = m_caminho[i]->coluna;
+
+        route.emplace_back(std::make_pair(x, y));
+    }*/
+
+    int j = 0;
     for (auto i : m_caminho) {
         if (i == nullptr) { continue; }
+        if (j++ > m_tamanhoCaminho) { break; }
 
         int y = i->linha;
         int x = i->coluna;

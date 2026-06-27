@@ -7,12 +7,16 @@ public:
 
 	~LTexture();
 
+	// carrega a textura a partir de um arquivo
 	bool loadFromFile(std::string path, SDL_Renderer* gRenderer);
 
-	// deallocates texture
+	// cria imagem a partir da string de fonte -> função quase igual à loadFromFile
+	bool loadFromRenderedText(std::string textureText, SDL_Renderer* gRenderer, TTF_Font* gFont, ALIGN align);
+
+	// desaloca a textura
 	void free();
 
-	// renders texture at a given position
+	// renderiza a textura em uma dada posição da tela
 	void render(int x, int y, SDL_Renderer* gRenderer);
 
 	// getters e setters

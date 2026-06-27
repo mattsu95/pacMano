@@ -16,6 +16,9 @@ int main(int argc, char* args[]) {
 		if (!game.loadMedia()) {
 			printf("Falha ao carregar midia!\n");
 		}
+		else if (!game.loadTexts()) {
+			printf("Falha ao carregar textos!\n");
+		}
 		else {
 			game.start();
 		}

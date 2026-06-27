@@ -9,9 +9,9 @@ public:
 
 	void move();
 
-	bool followRoute(std::vector<std::pair<int, int>>* route, SDL_Rect pacBox);
+	bool followRoute(std::vector<std::pair<int, int>>* route, SDL_Rect pacBox); // define a próxima direção com base na rota calculada
 
-	void resetRoute();
+	void resetRoute(); // reinicia nxtPos para evitar erros
 
 private:
 	std::pair<int, int> nxtPos;
