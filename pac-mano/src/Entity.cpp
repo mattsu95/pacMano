@@ -16,7 +16,7 @@ void Entity::render(SDL_Renderer* gRenderer) {
 	mTexture->render(mBox.x, mBox.y, gRenderer);
 }
 
-void Entity::checkDirection() {
+bool Entity::checkDirection() {
 	int nxtX, nxtY;
 
 	switch (nxtDirection) {
@@ -37,7 +37,7 @@ void Entity::checkDirection() {
 		nxtY = mBox.y;
 		break;
 	default:
-		return;
+		return false;
 	}
 
 	int lSup = nxtY / TILE_SIZE; // linha superior
@@ -51,7 +51,9 @@ void Entity::checkDirection() {
 	if (!collision) {
 		actDirection = nxtDirection;
 		setVel();
+		return true;
 	}
+	return false;
 }
 
 void Entity::setVel() {

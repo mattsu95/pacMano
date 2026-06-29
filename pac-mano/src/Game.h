@@ -4,6 +4,7 @@
 #include "PacMan.h"
 #include "Ghost.h"
 #include "Astar.h"	
+#include "AlfaBeta.h"
 
 class Game {
 public:
@@ -34,7 +35,7 @@ public:
 
 	// Função principal -> executa a aplicação
 	void start();
-	
+
 	// Loop do menu
 	void menu(bool* quit);
 
@@ -42,13 +43,13 @@ public:
 	bool init();
 
 	// Carrega imagens e sprites
-	bool loadMedia();	
+	bool loadMedia();
 
 	// Abre a fonte
 	bool openFont(const int fontSize);
 
 	// Carrega os textos fixos (não carrega o da métrica porque este depende da execução da busca)
-	bool loadTexts();	
+	bool loadTexts();
 
 	// Desenha o mapa
 	void drawMap();
@@ -75,8 +76,21 @@ private:
 	// Detecta se o Pacman mudou de célula no grid
 	bool hasPacMoved(const SDL_Rect& pacBox);
 
+	// Detecta se o fantasma mudou de célula no grid (usado pela poda alfa-beta, que decide
+	// passo a passo e só precisa redecidir quando o fantasma muda de célula, diferente do A*
+	// que recalcula quando o PACMAN se move)
+	bool hasGhostMoved(const SDL_Rect& ghostBox);
+
+	// Grava uma linha de métricas (algoritmo, nós gerados, nós expandidos, tempo) no arquivo
+	// metricas.csv, criado na mesma pasta do executável. Usado pelas duas duplas (A* e poda
+	// alfa-beta) pra alimentar a tabela comparativa do relatório (seção 3.3, item 4)
+	void registrarMetricas(const std::string& algoritmo, int nosGerados, int nosExpandidos, double tempoMs);
+
 	// Armazena a posição anterior do Pacman para detectar mudanças
 	std::pair<int, int> lastPacPos = { -1, -1 };
+
+	// Armazena a posição anterior do fantasma, usada pela poda alfa-beta
+	std::pair<int, int> lastGhostPos = { -1, -1 };
 
 	// Define qual vai ser o algoritmo usado
 	bool aStarAlg;

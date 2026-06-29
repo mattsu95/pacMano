@@ -13,14 +13,14 @@ const int MAP_WIDTH = 28;
 const int MAP_HEIGHT = 36;
 
 // dimensão da tela
-const int SCREEN_WIDTH = (MAP_WIDTH) * TILE_SIZE;
-const int SCREEN_HEIGHT = (MAP_HEIGHT) * TILE_SIZE;
+const int SCREEN_WIDTH = (MAP_WIDTH)*TILE_SIZE;
+const int SCREEN_HEIGHT = (MAP_HEIGHT)*TILE_SIZE;
 
 // direções
-const enum Direction { NONE, UP, DOWN, LEFT, RIGHT };
+enum Direction { NONE, UP, DOWN, LEFT, RIGHT };
 
 // alinhamento
-const enum class ALIGN { LEFT, CENTER, RIGHT };
+enum class ALIGN { LEFT, CENTER, RIGHT };
 
 const int mapa[MAP_HEIGHT][MAP_WIDTH] = {
 	{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, // Linha 0 (Placar)

@@ -1,5 +1,27 @@
 // Matheus Seghatti e Arthur Pivotto
 #include "Game.h"
+#include <fstream>
+
+void Game::registrarMetricas(const std::string& algoritmo, int nosGerados, int nosExpandidos, double tempoMs) {
+	// verifica se o arquivo ja existe pra so escrever o cabecalho da primeira vez
+	std::ifstream testeExistencia("metricas.csv");
+	bool arquivoJaExiste = testeExistencia.good();
+	testeExistencia.close();
+
+	// abre em modo "append" pra ir acumulando uma linha por jogada, sem apagar o que ja foi gravado
+	std::ofstream arquivo("metricas.csv", std::ios::app);
+	if (!arquivo.is_open()) {
+		printf("Nao foi possivel abrir metricas.csv pra escrita!\n");
+		return;
+	}
+
+	if (!arquivoJaExiste) {
+		arquivo << "algoritmo,nos_gerados,nos_expandidos,tempo_ms\n";
+	}
+
+	arquivo << algoritmo << "," << nosGerados << "," << nosExpandidos << "," << tempoMs << "\n";
+	arquivo.close();
+}
 
 
 // === Métodos principais ===
@@ -12,7 +34,8 @@ void Game::start() {
 	// instância do algoritmo de a*
 	AstarAlgoritmo aStar;
 
-	// ==== FAZER INSTÂNCIA PRA PODA ALFA BETA ===
+	// instância do algoritmo de poda alfa-beta
+	AlfaBetaAlgoritmo alfaBeta;
 
 	// vetor pra armazenar os pares de pontos da rota retornada pelo algoritmo de busca
 	std::vector<std::pair<int, int>> route;
@@ -58,9 +81,9 @@ void Game::start() {
 		}
 
 		// recalcula a rota se o pac se moveu ou se aconteceu um restart
-		if (hasPacMoved(pacMan.getBox()) || restarted) { 
-			// se A* foi selecionado, calcula a rota pelo algoritmo A*, caso contrário usa poda alfa beta
-			if (aStarAlg) {
+		if (aStarAlg) {
+			// se A* foi selecionado, calcula a rota pelo algoritmo A*
+			if (hasPacMoved(pacMan.getBox()) || restarted) {
 				// faz o cálculo da rota
 				bool rota = aStar.calcularCaminho(ghost.getBox().y / TILE_SIZE, ghost.getBox().x / TILE_SIZE, pacMan.getBox().y / TILE_SIZE, pacMan.getBox().x / TILE_SIZE);
 
@@ -76,12 +99,35 @@ void Game::start() {
 					if (!loadPausedText(nosGerados, nosExpandidos, tempoMs)) {
 						printf("Erro carregando a textura do texto das metricas!\n");
 					}
+
+					// registrarMetricas("A*", nosGerados, nosExpandidos, tempoMs);
 				}
 				if (restarted) { restarted = false; }
 			}
-			else {
-				// IMPLEMENTAR PARA PODA ALFA BETA
-			}			
+		}
+		else {
+			// poda alfa-beta: decide so o proximo passo do fantasma, por isso recalcula
+			// quando o PROPRIO FANTASMA muda de celula (nao quando o pacman se move, como no A*)
+			if (hasGhostMoved(ghost.getBox()) || restarted) {
+				Direction direcao = alfaBeta.decidirMovimento(
+					ghost.getBox().y / TILE_SIZE, ghost.getBox().x / TILE_SIZE,
+					pacMan.getBox().y / TILE_SIZE, pacMan.getBox().x / TILE_SIZE);
+
+				if (direcao != NONE) {
+					ghost.setNextDirection(direcao);
+				}
+
+				nosGerados = alfaBeta.getNosGerados();
+				nosExpandidos = alfaBeta.getNosExpandidos();
+				tempoMs = alfaBeta.getTempoMs();
+				if (!loadPausedText(nosGerados, nosExpandidos, tempoMs)) {
+					printf("Erro carregando a textura do texto das metricas!\n");
+				}
+
+				// registrarMetricas("AlfaBeta", nosGerados, nosExpandidos, tempoMs);
+
+				if (restarted) { restarted = false; }
+			}
 		}
 
 		// aplica as funções de movimento no fantasma e verifica fim de jogo se ele não estiver pausado
@@ -126,14 +172,14 @@ void Game::start() {
 		ghost.render(gRenderer);
 
 		// se o jogo tá pausado, renderiza o texto das métricas
-		if (paused) {			
+		if (paused) {
 			gPausedTextTexture.render((SCREEN_WIDTH - gPausedTextTexture.getWidth()) / 2,
-				(gPausedTextTexture.getHeight()), gRenderer);			
+				(gPausedTextTexture.getHeight()), gRenderer);
 		}
-		 // renderiza o texto dos comandos
+		// renderiza o texto dos comandos
 		gInGameTextTexture.render((SCREEN_WIDTH - gInGameTextTexture.getWidth()) / 2,
 			(SCREEN_HEIGHT - gInGameTextTexture.getHeight()) - 12, gRenderer);
-		
+
 
 		// atualiza a tela
 		SDL_RenderPresent(gRenderer);
@@ -301,8 +347,8 @@ bool Game::loadTexts() {
 	bool success = true;
 
 	success = loadMenuText();
-	success = success? loadInGameText(): false; // se success ainda for true, recebe o resultado da função
-												// se for false, continua sendo false independente do resultado da função
+	success = success ? loadInGameText() : false; // se success ainda for true, recebe o resultado da função
+	// se for false, continua sendo false independente do resultado da função
 
 	return success;
 }
@@ -332,7 +378,7 @@ bool Game::loadPausedText(int nosGerados, int nosExpandidos, double tempoMs) {
 	else {
 		// renderiza o texto
 		std::string texto = "Nos gerados: " + std::to_string(nosGerados) + "; " + "Nos expandidos: " + std::to_string(nosExpandidos) + "\n"
-							+ "Tempo de execucao (ms): " + std::to_string(tempoMs);
+			+ "Tempo de execucao (ms): " + std::to_string(tempoMs);
 		if (!gPausedTextTexture.loadFromRenderedText(texto, gRenderer, gFont, ALIGN::LEFT)) {
 			printf("Falha na renderizacao da textura do texto do jogo pausado!\n");
 			success = false;
@@ -429,11 +475,38 @@ bool Game::hasPacMoved(const SDL_Rect& pacBox) {
 	return false;
 }
 
+bool Game::hasGhostMoved(const SDL_Rect& ghostBox) {
+	// so considera "mudou de celula" quando o fantasma esta EXATAMENTE alinhado ao grid
+	// (multiplo exato de TILE_SIZE em x e y). Sem essa checagem, a divisao inteira (x/TILE_SIZE)
+	// fazia o "indice da celula" mudar 2 pixels ANTES do alinhamento perfeito, e a poda alfa-beta
+	// trocava de direcao no meio de uma celula. Isso deixava a caixa do fantasma desalinhada por
+	// alguns pixels, fazendo ela "tocar" em duas linhas/colunas do mapa ao mesmo tempo e colidir
+	// com uma parede vizinha que nao devia importar -> o fantasma travava pra sempre nesse ponto
+	if (ghostBox.x % TILE_SIZE != 0 || ghostBox.y % TILE_SIZE != 0) {
+		return false;
+	}
+
+	std::pair<int, int> currGhostPos = std::make_pair(ghostBox.x / TILE_SIZE, ghostBox.y / TILE_SIZE);
+
+	if (currGhostPos != lastGhostPos) {
+		lastGhostPos = currGhostPos;
+		return true;
+	}
+	return false;
+}
+
 void Game::restart() {
 	PacMan p(&gPacManTexture);
 	pacMan = p;
 
 	Ghost g(&gGhostTexture);
 	ghost = g;
+
+	// reseta o "cache" de ultima posicao conhecida, garantindo que tanto o A* quanto a poda
+	// alfa-beta recalculem a jogada ja no primeiro frame da nova partida, em vez de pensar
+	// que o pacman/fantasma ainda esta na mesma celula em que estava quando a partida anterior
+	// terminou (isso podia fazer o fantasma "esquecer" de se mover apos um restart)
+	lastPacPos = { -1, -1 };
+	lastGhostPos = { -1, -1 };
 }
 

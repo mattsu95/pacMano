@@ -15,7 +15,7 @@ public:
 
 	void render(SDL_Renderer* gRenderer);
 
-	void checkDirection();
+	bool checkDirection(); // verifica se consegue mudar de direção
 
 	void setVel();
 
