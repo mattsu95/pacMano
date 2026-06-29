@@ -46,6 +46,7 @@ public:
     int getNosGerados()    const { return m_nosGerados; }
     int getNosExpandidos() const { return m_nosExpandidos; }
     double getTempoMs()    const { return m_tempoMs; }
+    int getCustoSolucao()  const { return m_custoSolucao; } //quantidade de passos (movimentos) do caminho encontrado
 
 private:
     //heuristica Manhattan: |dx| + |dy|. pode ser usada em grade de 4 direcoes (sem diagonal), nunca superestima o custo real
@@ -75,4 +76,5 @@ private:
     int m_nosGerados{};
     int m_nosExpandidos{};
     double m_tempoMs{};
+    int m_custoSolucao{}; //numero de passos do caminho encontrado e igual ao g_cost do node final
 };

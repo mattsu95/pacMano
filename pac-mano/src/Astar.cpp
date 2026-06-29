@@ -55,6 +55,7 @@ bool AstarAlgoritmo::calcularCaminho(int linhaInicio, int colunaInicio, int linh
     m_nosGerados = 0;
     m_nosExpandidos = 0;
     m_tamanhoCaminho = 0;
+    m_custoSolucao = 0;
     m_caminho.fill(nullptr);
 
     bool dentroDosLimites =
@@ -85,6 +86,7 @@ bool AstarAlgoritmo::calcularCaminho(int linhaInicio, int colunaInicio, int linh
 
     if (start == end) { //caso o inicio seja o proprio destino
         reconstruirCaminho(start);
+        m_custoSolucao = static_cast<int>(start->g_cost); //custo da solucao 0 passos ja esta no destino
         auto endTempo = std::chrono::high_resolution_clock::now();
         m_tempoMs = std::chrono::duration<double, std::milli>(endTempo - startTempo).count(); //conta quanto tempo passou
         return true;
@@ -110,6 +112,7 @@ bool AstarAlgoritmo::calcularCaminho(int linhaInicio, int colunaInicio, int linh
 
         if (atual == end) { //quando chega ao destino chama o reconstruirCaminho e encerra
             reconstruirCaminho(atual);
+            m_custoSolucao = static_cast<int>(atual->g_cost); //custo da solução numero de passos do caminho ate aqui
             auto endTempo = std::chrono::high_resolution_clock::now();
             m_tempoMs = std::chrono::duration<double, std::milli>(endTempo - startTempo).count();
             return true;

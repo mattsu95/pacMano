@@ -1,8 +1,8 @@
 #include "PacMan.h"
 
 PacMan::PacMan(LTexture* texture) : Entity(texture){
-	mBox.x = 18 * TILE_SIZE;
-	mBox.y = 10 * TILE_SIZE;
+	mBox.x = 14 * TILE_SIZE;
+	mBox.y = 26 * TILE_SIZE;
 	//actDirection = RIGHT;
 	//nxtDirection = RIGHT;
 }

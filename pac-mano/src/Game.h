@@ -29,9 +29,10 @@ public:
 	TTF_Font* gFont = NULL;
 
 	// texturas dos textos
-	LTexture gMenuTextTexture;
-	LTexture gPausedTextTexture;
-	LTexture gInGameTextTexture;
+	LTexture gMenuTextTexture;		// "pressione enter"
+	LTexture gPausedTextTexture;	// métricas
+	LTexture gInGameTextTexture;	// comandos
+	LTexture gAlgTextTexture;		// texto pra indicar qual o algoritmo que tá sendo utilizado
 
 	// Função principal -> executa a aplicação
 	void start();
@@ -68,7 +69,10 @@ private:
 	bool loadMenuText();
 
 	// Carrega o texto do jogo pausado (métricas)
-	bool loadPausedText(int nosGerados, int nosExpandidos, double tempoMs);
+	bool loadPausedText(int nosGerados, int nosExpandidos, double tempoMs, int custo);
+
+	// Carrega o texto que identifica o algoritmo sendo usado
+	bool loadAlgText();
 
 	// Carrega o texto do jogo em execução (movimentação e comandos)
 	bool loadInGameText();

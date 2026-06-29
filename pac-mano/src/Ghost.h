@@ -19,4 +19,5 @@ public:
 
 private:
 	std::pair<int, int> nxtPos;
+	std::pair<int, int> prevPos;
 };

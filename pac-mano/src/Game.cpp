@@ -1,5 +1,6 @@
 // Matheus Seghatti e Arthur Pivotto
 #include "Game.h"
+#include <chrono>
 #include <fstream>
 
 void Game::registrarMetricas(const std::string& algoritmo, int nosGerados, int nosExpandidos, double tempoMs) {
@@ -19,7 +20,7 @@ void Game::registrarMetricas(const std::string& algoritmo, int nosGerados, int n
 		arquivo << "algoritmo,nos_gerados,nos_expandidos,tempo_ms\n";
 	}
 
-	arquivo << algoritmo << "," << nosGerados << "," << nosExpandidos << "," << tempoMs << "\n";
+	arquivo << algoritmo << ", " << nosGerados << ", " << nosExpandidos << ", " << tempoMs << "\n";
 	arquivo.close();
 }
 
@@ -57,10 +58,18 @@ void Game::start() {
 	// métricas
 	int nosGerados = 0;
 	int nosExpandidos = 0;
+	int custo = 0;
 	double tempoMs = 0.0;
+
+	// limitador de fps
+	const Uint32 FRAME_TIME = 16;
+
+	// carrega a textura do texto do algoritmo
+	loadAlgText();
 
 	// loop principal
 	while (!quit) {
+		Uint32 inicioFrame = SDL_GetTicks();
 		// lida com os eventos
 		while (SDL_PollEvent(&e) != 0) {
 			if (e.type == SDL_QUIT) {
@@ -96,11 +105,12 @@ void Game::start() {
 					nosGerados = aStar.getNosGerados();
 					nosExpandidos = aStar.getNosExpandidos();
 					tempoMs = aStar.getTempoMs();
-					if (!loadPausedText(nosGerados, nosExpandidos, tempoMs)) {
+					custo = aStar.getCustoSolucao();
+					if (!loadPausedText(nosGerados, nosExpandidos, tempoMs, custo)) {
 						printf("Erro carregando a textura do texto das metricas!\n");
 					}
 
-					// registrarMetricas("A*", nosGerados, nosExpandidos, tempoMs);
+					//registrarMetricas("A*", nosGerados, nosExpandidos, tempoMs);
 				}
 				if (restarted) { restarted = false; }
 			}
@@ -120,11 +130,11 @@ void Game::start() {
 				nosGerados = alfaBeta.getNosGerados();
 				nosExpandidos = alfaBeta.getNosExpandidos();
 				tempoMs = alfaBeta.getTempoMs();
-				if (!loadPausedText(nosGerados, nosExpandidos, tempoMs)) {
+				if (!loadPausedText(nosGerados, nosExpandidos, tempoMs, custo)) {
 					printf("Erro carregando a textura do texto das metricas!\n");
 				}
 
-				// registrarMetricas("AlfaBeta", nosGerados, nosExpandidos, tempoMs);
+				//registrarMetricas("AlfaBeta", nosGerados, nosExpandidos, tempoMs);
 
 				if (restarted) { restarted = false; }
 			}
@@ -140,6 +150,7 @@ void Game::start() {
 			if (goal) {
 				// os.remove("C:\Windows\System32")
 				menu(&quit);	// volta pro menu
+				loadAlgText();	// se tiver trocado de algoritmo, recarrega a textura do texto
 				restart();		// reinicializa as entidades
 				route.clear();	// limpa a rota
 
@@ -176,13 +187,19 @@ void Game::start() {
 			gPausedTextTexture.render((SCREEN_WIDTH - gPausedTextTexture.getWidth()) / 2,
 				(gPausedTextTexture.getHeight()), gRenderer);
 		}
-		// renderiza o texto dos comandos
+		// renderiza o texto dos comandos e do algoritmo
 		gInGameTextTexture.render((SCREEN_WIDTH - gInGameTextTexture.getWidth()) / 2,
-			(SCREEN_HEIGHT - gInGameTextTexture.getHeight()) - 12, gRenderer);
+			(SCREEN_HEIGHT - gInGameTextTexture.getHeight()) - 5, gRenderer);
+
+		gAlgTextTexture.render((SCREEN_WIDTH - gAlgTextTexture.getWidth()) / 2, gAlgTextTexture.getHeight(), gRenderer);
 
 
 		// atualiza a tela
 		SDL_RenderPresent(gRenderer);
+
+		Uint32 tempoFrame = SDL_GetTicks() - inicioFrame;
+		if (tempoFrame < FRAME_TIME)
+			SDL_Delay(FRAME_TIME - tempoFrame);
 	}
 }
 
@@ -348,7 +365,7 @@ bool Game::loadTexts() {
 
 	success = loadMenuText();
 	success = success ? loadInGameText() : false; // se success ainda for true, recebe o resultado da função
-	// se for false, continua sendo false independente do resultado da função
+												  // se for false, continua sendo false independente do resultado da função
 
 	return success;
 }
@@ -371,16 +388,33 @@ bool Game::loadMenuText() {
 	return success;
 }
 
-bool Game::loadPausedText(int nosGerados, int nosExpandidos, double tempoMs) {
+bool Game::loadPausedText(int nosGerados, int nosExpandidos, double tempoMs, int custo) {
 	bool success = true;
 	// abre a fonte
 	if (!openFont(12)) { success = false; }
 	else {
 		// renderiza o texto
-		std::string texto = "Nos gerados: " + std::to_string(nosGerados) + "; " + "Nos expandidos: " + std::to_string(nosExpandidos) + "\n"
-			+ "Tempo de execucao (ms): " + std::to_string(tempoMs);
+		std::string texto = "Nos gerados: " + std::to_string(nosGerados) + "; " + "Nos expandidos: " + std::to_string(nosExpandidos) +
+			"; Custo: " + std::to_string(custo) + "\n" + "Tempo de execucao (ms): " + std::to_string(tempoMs);
 		if (!gPausedTextTexture.loadFromRenderedText(texto, gRenderer, gFont, ALIGN::LEFT)) {
 			printf("Falha na renderizacao da textura do texto do jogo pausado!\n");
+			success = false;
+		}
+	}
+	TTF_CloseFont(gFont);
+	gFont = NULL;
+	return success;
+}
+
+bool Game::loadAlgText() {
+	bool success = true;
+	// abre a fonte
+	if (!openFont(25)) { success = false; }
+	else {
+		// renderiza o texto
+		std::string texto = aStarAlg ? "A*" : "PODA ALFA-BETA";
+		if (!gAlgTextTexture.loadFromRenderedText(texto, gRenderer, gFont, ALIGN::RIGHT)) {
+			printf("Falha na renderizacao da textura do texto do algoritmo!\n");
 			success = false;
 		}
 	}
@@ -396,7 +430,7 @@ bool Game::loadInGameText() {
 	if (!openFont(15)) { success = false; }
 	else {
 		// renderiza o texto
-		std::string texto = "Use as setinhas para se mover!\nPressione [espaco] para pausar!";
+		std::string texto = "Use as setas para se mover!\nPressione [espaco] para pausar!";
 		if (!gInGameTextTexture.loadFromRenderedText(texto, gRenderer, gFont, ALIGN::CENTER)) {
 			printf("Falha na renderizacao da textura do texto do jogo em execucao!\n");
 			success = false;
@@ -437,6 +471,7 @@ void Game::close() {
 	gGhostTexture.free();
 	gMenuTextTexture.free();
 	gPausedTextTexture.free();
+	gAlgTextTexture.free();
 	gInGameTextTexture.free();
 
 	// destroi a janela  

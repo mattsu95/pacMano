@@ -1,11 +1,10 @@
 #include "Ghost.h"
 
 Ghost::Ghost(LTexture* texture): Entity(texture) {
-	mBox.x = 13 * TILE_SIZE;
+	mBox.x = 14 * TILE_SIZE;
 	mBox.y = 17 * TILE_SIZE;
-	actDirection = RIGHT;
-	nxtDirection = RIGHT;
-	nxtPos = { 13, 17 };
+	nxtPos = { 14, 17 };
+	prevPos = nxtPos;
 }
 
 void Ghost::resetRoute() {
@@ -58,6 +57,7 @@ bool Ghost::followRoute(std::vector<std::pair<int, int>>* route, SDL_Rect pacBox
 }
 
 void Ghost::move() {
+	prevPos = { mBox.x, mBox.y };
 	mBox.x += mVelX;
 
 	// testa colisão considerando todos os cantos da entidade
@@ -86,5 +86,19 @@ void Ghost::move() {
 	if (lSup < 0 || lInf > MAP_HEIGHT || collision) {
 		// move back
 		mBox.y -= mVelY;
+	}
+
+	// gambiarra pra que não fique preso na saída
+	const int margem = 15;
+
+	bool naSaida =
+		(abs(mBox.x - 14 * TILE_SIZE) <= margem &&
+			abs(mBox.y - 15 * TILE_SIZE) <= margem) ||
+		(abs(mBox.x - 13 * TILE_SIZE) <= margem &&
+			abs(mBox.y - 15 * TILE_SIZE) <= margem);
+
+	if (naSaida && (actDirection == LEFT || actDirection == RIGHT)) {
+		mVelX = 0;
+		mVelY = -2;
 	}
 }
