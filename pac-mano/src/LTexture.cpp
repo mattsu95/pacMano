@@ -1,3 +1,5 @@
+// Matheus Seghatti, Arthur Pivotto, Carlos Eduardo e Lucas Henrique
+
 #include "LTexture.h"
 #include "Entity.h"
 

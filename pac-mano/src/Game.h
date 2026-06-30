@@ -1,3 +1,5 @@
+// Matheus Seghatti, Arthur Pivotto, Carlos Eduardo e Lucas Henrique
+
 #pragma once
 #include "Constants.h"
 #include "LTexture.h"
@@ -29,10 +31,10 @@ public:
 	TTF_Font* gFont = NULL;
 
 	// texturas dos textos
-	LTexture gMenuTextTexture;		// "pressione enter"
-	LTexture gPausedTextTexture;	// métricas
-	LTexture gInGameTextTexture;	// comandos
-	LTexture gAlgTextTexture;		// texto pra indicar qual o algoritmo que tá sendo utilizado
+	LTexture gMenuTextTexture;
+	LTexture gPausedTextTexture;
+	LTexture gInGameTextTexture;
+	LTexture gAlgTextTexture; // mostra na tela qual algoritmo esta em execucao (A* ou poda alfa-beta)
 
 	// Função principal -> executa a aplicação
 	void start();
@@ -71,7 +73,7 @@ private:
 	// Carrega o texto do jogo pausado (métricas)
 	bool loadPausedText(int nosGerados, int nosExpandidos, double tempoMs, int custo);
 
-	// Carrega o texto que identifica o algoritmo sendo usado
+	// Carrega o texto que mostra qual algoritmo esta em execucao (A* ou poda alfa-beta)
 	bool loadAlgText();
 
 	// Carrega o texto do jogo em execução (movimentação e comandos)
@@ -88,7 +90,7 @@ private:
 	// Grava uma linha de métricas (algoritmo, nós gerados, nós expandidos, tempo) no arquivo
 	// metricas.csv, criado na mesma pasta do executável. Usado pelas duas duplas (A* e poda
 	// alfa-beta) pra alimentar a tabela comparativa do relatório (seção 3.3, item 4)
-	void registrarMetricas(const std::string& algoritmo, int nosGerados, int nosExpandidos, double tempoMs);
+	void registrarMetricas(const std::string& algoritmo, int nosGerados, int nosExpandidos, double tempoMs, int custo);
 
 	// Armazena a posição anterior do Pacman para detectar mudanças
 	std::pair<int, int> lastPacPos = { -1, -1 };

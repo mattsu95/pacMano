@@ -1,3 +1,5 @@
+// Matheus Seghatti, Arthur Pivotto, Carlos Eduardo e Lucas Henrique
+
 #pragma once
 #include <SDL.h>
 #include <SDL_image.h>

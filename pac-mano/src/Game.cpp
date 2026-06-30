@@ -1,9 +1,10 @@
-// Matheus Seghatti e Arthur Pivotto
+// Matheus Seghatti, Arthur Pivotto, Carlos Eduardo e Lucas Henrique
+
 #include "Game.h"
 #include <chrono>
 #include <fstream>
 
-void Game::registrarMetricas(const std::string& algoritmo, int nosGerados, int nosExpandidos, double tempoMs) {
+void Game::registrarMetricas(const std::string& algoritmo, int nosGerados, int nosExpandidos, double tempoMs, int custo) {
 	// verifica se o arquivo ja existe pra so escrever o cabecalho da primeira vez
 	std::ifstream testeExistencia("metricas.csv");
 	bool arquivoJaExiste = testeExistencia.good();
@@ -17,10 +18,10 @@ void Game::registrarMetricas(const std::string& algoritmo, int nosGerados, int n
 	}
 
 	if (!arquivoJaExiste) {
-		arquivo << "algoritmo,nos_gerados,nos_expandidos,tempo_ms\n";
+		arquivo << "algoritmo, nos_gerados, nos_expandidos, tempo_ms, custo\n";
 	}
 
-	arquivo << algoritmo << ", " << nosGerados << ", " << nosExpandidos << ", " << tempoMs << "\n";
+	arquivo << algoritmo << ", " << nosGerados << ", " << nosExpandidos << ", " << tempoMs << ", " << custo << "\n";
 	arquivo.close();
 }
 
@@ -105,12 +106,12 @@ void Game::start() {
 					nosGerados = aStar.getNosGerados();
 					nosExpandidos = aStar.getNosExpandidos();
 					tempoMs = aStar.getTempoMs();
-					custo = aStar.getCustoSolucao();
+					custo = aStar.getTamanhoCaminho();
 					if (!loadPausedText(nosGerados, nosExpandidos, tempoMs, custo)) {
 						printf("Erro carregando a textura do texto das metricas!\n");
 					}
 
-					//registrarMetricas("A*", nosGerados, nosExpandidos, tempoMs);
+					registrarMetricas("A*", nosGerados, nosExpandidos, tempoMs, custo);
 				}
 				if (restarted) { restarted = false; }
 			}
@@ -127,14 +128,24 @@ void Game::start() {
 					ghost.setNextDirection(direcao);
 				}
 
+				// preenche "route" so para EXIBIR na tela (igual o A* faz), reconstruindo o caminho
+				// mais curto conhecido (calculado via BFS dentro do proprio decidirMovimento) do
+				// fantasma at o Pac-Man. Diferente do A*, isso NAO e um plano que o fantasma segue --
+				// a poda alfa-beta recalcula a jogada a cada passo, entao essa rota e so uma "previa"
+				route = alfaBeta.getRotaPrevista(ghost.getBox().y / TILE_SIZE, ghost.getBox().x / TILE_SIZE);
+
+				// DEBUG TEMPORARIO
+				printf("[DEBUG ROTA] tamanho da rota = %zu\n", route.size());
+
 				nosGerados = alfaBeta.getNosGerados();
 				nosExpandidos = alfaBeta.getNosExpandidos();
 				tempoMs = alfaBeta.getTempoMs();
+				custo = alfaBeta.getCustoAtual();
 				if (!loadPausedText(nosGerados, nosExpandidos, tempoMs, custo)) {
 					printf("Erro carregando a textura do texto das metricas!\n");
 				}
 
-				//registrarMetricas("AlfaBeta", nosGerados, nosExpandidos, tempoMs);
+				registrarMetricas("AlfaBeta", nosGerados, nosExpandidos, tempoMs, custo);
 
 				if (restarted) { restarted = false; }
 			}
@@ -365,7 +376,7 @@ bool Game::loadTexts() {
 
 	success = loadMenuText();
 	success = success ? loadInGameText() : false; // se success ainda for true, recebe o resultado da função
-												  // se for false, continua sendo false independente do resultado da função
+	// se for false, continua sendo false independente do resultado da função
 
 	return success;
 }

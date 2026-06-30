@@ -1,5 +1,4 @@
-//Lucas [SOBRENOME] && Carlos [SOBRENOME]   <-- completar com os nomes completos da dupla
-//m_ esta indicando membros da classe para separa-los de variaveis locais
+// Matheus Seghatti, Arthur Pivotto, Carlos Eduardo e Lucas Henrique
 
 #include "AlfaBeta.h"
 #include <cmath>
@@ -60,7 +59,6 @@ float AlfaBetaAlgoritmo::avaliar(const Estado& estado, bool capturou, int profun
     }
 
     //sinal negativo, pois o fantasma (MAX) quer o MENOR valor de distancia possivel,
-    //ou seja, o MAIOR valor de -distancia
     return -static_cast<float>(distancia);
 }
 
@@ -82,7 +80,7 @@ std::vector<AlfaBetaAlgoritmo::Estado> AlfaBetaAlgoritmo::gerarSucessores(const 
         bool dentroDosLimites = novaLinha >= 0 && novaLinha < LINHAS && novaColuna >= 0 && novaColuna < COLUNAS;
         if (!dentroDosLimites) { continue; } //ignora fora do mapa
         //obs.: nao trata o tunel lateral (linha 17) aqui pra simplificar a arvore de busca;
-        //isso pode ser citado como uma simplificacao/limitacao no relatorio
+
 
         if (mapa[novaLinha][novaColuna] == 1) { continue; } //ignora parede
 
@@ -145,6 +143,52 @@ float AlfaBetaAlgoritmo::alfaBeta(Estado estado, int profundidade, bool maximiza
     }
 }
 
+std::vector<std::pair<int, int>> AlfaBetaAlgoritmo::getRotaPrevista(int linhaFantasma, int colunaFantasma) {
+    std::vector<std::pair<int, int>> rota;
+
+    int linha = linhaFantasma;
+    int coluna = colunaFantasma;
+    rota.emplace_back(std::make_pair(coluna, linha)); //inclui a posicao atual do fantasma
+
+    int distanciaAtual = m_distanciaReal[linha][coluna];
+    if (distanciaAtual < 0) { return rota; } //fantasma esta numa celula sem caminho conhecido ate o pacman
+
+    const int moveLinha[4]{ -1, 1, 0, 0 };
+    const int moveColuna[4]{ 0, 0, -1, 1 };
+
+    //segue, passo a passo, sempre pro vizinho com a MENOR distancia real conhecida, ate chegar
+    //"descendo" a distancia e garantidamente um dos caminhos mais curtos possiveis
+    while (distanciaAtual > 0) {
+        int melhorLinha{ -1 };
+        int melhorColuna{ -1 };
+        int melhorDistancia = distanciaAtual;
+
+        for (int dir{}; dir < 4; dir++) { //dir e direcao
+            int novaLinha = linha + moveLinha[dir];
+            int novaColuna = coluna + moveColuna[dir];
+
+            bool dentroDosLimites = novaLinha >= 0 && novaLinha < LINHAS && novaColuna >= 0 && novaColuna < COLUNAS;
+            if (!dentroDosLimites) { continue; }
+            if (m_distanciaReal[novaLinha][novaColuna] < 0) { continue; } //celula inalcancavel
+
+            if (m_distanciaReal[novaLinha][novaColuna] < melhorDistancia) {
+                melhorDistancia = m_distanciaReal[novaLinha][novaColuna];
+                melhorLinha = novaLinha;
+                melhorColuna = novaColuna;
+            }
+        }
+
+        if (melhorLinha == -1) { break; } //seguranca: nao deveria acontecer nesse mapa
+
+        linha = melhorLinha;
+        coluna = melhorColuna;
+        distanciaAtual = melhorDistancia;
+        rota.emplace_back(std::make_pair(coluna, linha));
+    }
+
+    return rota;
+}
+
 Direction AlfaBetaAlgoritmo::decidirMovimento(int linhaFantasma, int colunaFantasma, int linhaPacman, int colunaPacman) {
     auto inicioTempo = std::chrono::high_resolution_clock::now(); //marca inicio da contagem de tempo que a prof pediu
     m_nosGerados = 0;
@@ -153,6 +197,11 @@ Direction AlfaBetaAlgoritmo::decidirMovimento(int linhaFantasma, int colunaFanta
     //calcula, uma unica vez, a distancia real (contornando paredes) de cada celula do mapa
     //ate a posicao ATUAL do pacman; essa tabela e usada pela funcao avaliar() em toda a arvore
     calcularDistanciasReais(linhaPacman, colunaPacman);
+
+    //"custo" da jogada: distancia real do fantasma at o pacman, na posicao em que a decisao foi tomada
+    //(mesmo conceito de "Custo"/tamanho do caminho usado na tabela comparativa do A*)
+    m_custoAtual = m_distanciaReal[linhaFantasma][colunaFantasma];
+    if (m_custoAtual < 0) { m_custoAtual = 0; } //seguranca: celula inalcancavel (nao deveria ocorrer nesse mapa)
 
     Estado raiz{};
     raiz.linhaFantasma = linhaFantasma;
@@ -188,5 +237,5 @@ Direction AlfaBetaAlgoritmo::decidirMovimento(int linhaFantasma, int colunaFanta
     auto fimTempo = std::chrono::high_resolution_clock::now();
     m_tempoMs = std::chrono::duration<double, std::milli>(fimTempo - inicioTempo).count(); //conta quanto tempo passou
 
-    return melhorDirecao; //NONE caso o fantasma esteja encurralado (nenhum movimento legal)
+    return melhorDirecao; //NONE caso o fantasma esteja encurralado
 }

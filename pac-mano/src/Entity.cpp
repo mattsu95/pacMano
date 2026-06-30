@@ -1,3 +1,5 @@
+// Matheus Seghatti, Arthur Pivotto, Carlos Eduardo e Lucas Henrique
+
 #include "Entity.h"
 
 Entity::Entity(LTexture* texture) {

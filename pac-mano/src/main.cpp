@@ -1,3 +1,5 @@
+// Matheus Seghatti, Arthur Pivotto, Carlos Eduardo e Lucas Henrique
+
 #include <cmath>
 #include "PacMan.h"
 #include "Ghost.h"

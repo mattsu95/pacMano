@@ -1,3 +1,5 @@
+// Matheus Seghatti, Arthur Pivotto, Carlos Eduardo e Lucas Henrique
+
 #include "PacMan.h"
 
 PacMan::PacMan(LTexture* texture) : Entity(texture){

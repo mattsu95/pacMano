@@ -1,3 +1,5 @@
+// Matheus Seghatti, Arthur Pivotto, Carlos Eduardo e Lucas Henrique
+
 #include "Ghost.h"
 
 Ghost::Ghost(LTexture* texture): Entity(texture) {

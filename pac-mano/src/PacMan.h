@@ -1,9 +1,10 @@
+// Matheus Seghatti, Arthur Pivotto, Carlos Eduardo e Lucas Henrique
+
 #pragma once
 #include "Entity.h"
 
 class PacMan : public Entity {
 public:
-	// using Entity::Entity;
 	
 	PacMan(LTexture* texture);
 

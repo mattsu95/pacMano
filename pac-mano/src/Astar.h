@@ -1,4 +1,4 @@
-//Arthur Gomes Pivotto && Matheus Seghatti de Moraes
+// Matheus Seghatti, Arthur Pivotto, Carlos Eduardo e Lucas Henrique
 //m_ esta indicando membros da classe para separá-los de variaveis locais
 
 #pragma once
